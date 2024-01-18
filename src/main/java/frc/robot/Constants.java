@@ -46,7 +46,7 @@ public final class Constants
 
   public static class OperatorConstants
   {
-
+    public static final int xboxID = 0;
     // Joystick Deadband
     public static final double LEFT_X_DEADBAND = 0.01;
     public static final double LEFT_Y_DEADBAND = 0.01;
