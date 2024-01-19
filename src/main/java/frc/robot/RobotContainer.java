@@ -16,11 +16,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
-<<<<<<< Updated upstream
-=======
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.swervedrive.auto.AutoAimCommand;
->>>>>>> Stashed changes
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDrive;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteFieldDrive;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
@@ -111,17 +108,11 @@ public class RobotContainer
   private void configureBindings()
   {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-<<<<<<< Updated upstream
-
-    new JoystickButton(driverXbox, 1).onTrue((new InstantCommand(drivebase::zeroGyro)));
-    new JoystickButton(driverXbox, 3).onTrue(new InstantCommand(drivebase::addFakeVisionReading));
-=======
-    new JoystickButton(driverXbox, XboxController.Button.kA.value).onTrue(new AutoAimCommand(drivebase, mVision));
+    // new JoystickButton(driverXbox, XboxController.Button.kA.value).onTrue(new AutoAimCommand(drivebase, mVision));
     new JoystickButton(driverXbox, XboxController.Button.kB.value).onTrue(new DriveCommands.RotateFixedAngleCommand(drivebase, Rotation2d.fromDegrees(30)));
 
     // new JoystickButton(driverXbox, 1).onTrue((new InstantCommand(drivebase::zeroGyro)));
     // new JoystickButton(driverXbox, 3).onTrue(new InstantCommand(drivebase::addFakeVisionReading));
->>>>>>> Stashed changes
 //    new JoystickButton(driverXbox, 3).whileTrue(new RepeatCommand(new InstantCommand(drivebase::lock, drivebase)));
   }
 
