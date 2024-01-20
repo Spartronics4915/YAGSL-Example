@@ -57,7 +57,7 @@ public class RobotContainer
    */
   public RobotContainer()
   {
-    traj = Choreo.getTrajectory("finn pt 3");
+    traj = Choreo.getTrajectory("TestNote3");
 
     m_field.getObject("traj").setPoses(
       traj.getInitialPose(), traj.getFinalPose()
@@ -142,22 +142,21 @@ public class RobotContainer
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
     drivebase.resetOdometry(traj.getInitialPose());
-
+    
     Command swerveCommand = Choreo.choreoSwerveCommand(
             traj, // Choreo trajectory from above
             drivebase::getPose, // A function that returns the current field-relative pose of the robot: your
             // wheel or vision odometry
-            new PIDController(0, 0.0, 0.0), // PIDController for field-relative X
+            new PIDController(1, 0.0, 0.0), // PIDController for field-relative X
             // translation (input: X error in meters,
             // output: m/s).
-            new PIDController(0, 0.0, 0.0), // PIDController for field-relative Y
+            new PIDController(1, 0.0, 0.0), // PIDController for field-relative Y
             // translation (input: Y error in meters,
             // output: m/s).
             thetaController, // PID constants to correct for rotation
             // error
             (ChassisSpeeds speeds) -> {
-              speeds.vxMetersPerSecond *= .2;
-              speeds.vyMetersPerSecond *= .2;
+             
               drivebase.drive(speeds);
             },
             () -> false, // Whether or not to mirror the path based on alliance (this assumes the path is created for the blue alliance)
