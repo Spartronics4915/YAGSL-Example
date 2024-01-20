@@ -5,10 +5,16 @@
 package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -21,6 +27,9 @@ import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
 import frc.robot.commands.swervedrive.drivebase.TeleopDrive;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
+
+import com.choreo.lib.Choreo;
+import com.choreo.lib.ChoreoTrajectory;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
@@ -40,11 +49,23 @@ public class RobotContainer
   // CommandJoystick driverController   = new CommandJoystick(3);//(OperatorConstants.DRIVER_CONTROLLER_PORT);
   XboxController driverXbox = new XboxController(0);
 
+  Field2d m_field = new Field2d();
+  ChoreoTrajectory traj;
+
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer()
   {
+    traj = Choreo.getTrajectory("finn");
+
+    m_field.getObject("traj").setPoses(
+      traj.getInitialPose(), traj.getFinalPose()
+    );
+    m_field.getObject("trajPoses").setPoses(
+      traj.getPoses()
+    );
+
     // Configure the trigger bindings
     configureBindings();
 
@@ -93,7 +114,7 @@ public class RobotContainer
 
     drivebase.setDefaultCommand(!RobotBase.isSimulation() ? closedAbsoluteDrive : closedFieldAbsoluteDrive);
   }
-
+  
   /**
    * Use this method to define your trigger->command mappings. Triggers can be created via the
    * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary predicate, or via the
@@ -117,8 +138,34 @@ public class RobotContainer
    */
   public Command getAutonomousCommand()
   {
-    // An example command will be run in autonomous
-    return drivebase.getAutonomousCommand("New Path", true);
+    var thetaController = new PIDController(0, 0, 0);
+    thetaController.enableContinuousInput(-Math.PI, Math.PI);
+
+    drivebase.resetOdometry(traj.getInitialPose());
+
+    Command swerveCommand = Choreo.choreoSwerveCommand(
+            traj, // Choreo trajectory from above
+            drivebase::getPose, // A function that returns the current field-relative pose of the robot: your
+            // wheel or vision odometry
+            new PIDController(0, 0.0, 0.0), // PIDController for field-relative X
+            // translation (input: X error in meters,
+            // output: m/s).
+            new PIDController(0, 0.0, 0.0), // PIDController for field-relative Y
+            // translation (input: Y error in meters,
+            // output: m/s).
+            thetaController, // PID constants to correct for rotation
+            // error
+            (ChassisSpeeds speeds) -> drivebase.drive(speeds),
+            () -> false, // Whether or not to mirror the path based on alliance (this assumes the path is created for the blue alliance)
+            drivebase // The subsystem(s) to require, typically your drive subsystem only
+    );
+
+    return Commands.sequence(
+            Commands.runOnce(() -> drivebase.resetOdometry(traj.getInitialPose())),
+            swerveCommand,
+            drivebase.run(() -> drivebase.drive(new Translation2d(0,0), 0,false)));
+    
+
   }
 
   public void setDriveMode()
