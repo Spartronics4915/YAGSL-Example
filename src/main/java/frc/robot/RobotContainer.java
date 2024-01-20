@@ -17,10 +17,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
-<<<<<<< HEAD
-=======
 import frc.robot.commands.DriveCommands;
->>>>>>> 4915_mtappen
 import frc.robot.commands.swervedrive.auto.AutoAimCommand;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDrive;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteFieldDrive;
@@ -119,12 +116,6 @@ public class RobotContainer
     // new JoystickButton(driverXbox, XboxController.Button.kA.value).onTrue(new AutoAimCommand(drivebase, mVision));
     new JoystickButton(driverXbox, XboxController.Button.kB.value).onTrue(new DriveCommands.RotateFixedAngleCommand(drivebase, Rotation2d.fromDegrees(30)));
 
-<<<<<<< HEAD
-    new JoystickButton(driverXbox, XboxController.Button.kA.value).onTrue(new AutoAimCommand(drivebase, mVision));
-
-
-=======
->>>>>>> 4915_mtappen
     // new JoystickButton(driverXbox, 1).onTrue((new InstantCommand(drivebase::zeroGyro)));
     // new JoystickButton(driverXbox, 3).onTrue(new InstantCommand(drivebase::addFakeVisionReading));
 //    new JoystickButton(driverXbox, 3).whileTrue(new RepeatCommand(new InstantCommand(drivebase::lock, drivebase)));
