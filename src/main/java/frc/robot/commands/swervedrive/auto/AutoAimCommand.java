@@ -17,20 +17,23 @@ public class AutoAimCommand extends Command {
     }
 
     private double getTx(){
+        System.out.println("getTx called");
         if (mVision.isLookingAtAprilTag()) {
+            System.out.println("[!] tag seen at " + mVision.getTx());
             return mVision.getTx();
         } else {
+            System.out.println("[X] tag not seen");
             return 0.0;
         }
     }
 
     @Override
     public void execute() {
-        mSwerve.drive(new Translation2d(0, 0), getTx() * AutoAimConstants.kP, false);
+        mSwerve.drive(new Translation2d(0, 0), -getTx() * AutoAimConstants.kP, false);
     }
     @Override
     public boolean isFinished() {
-        return (getTx() < 0.05);
+        return (Math.abs(getTx()) < 0.05);
     }
 
     
