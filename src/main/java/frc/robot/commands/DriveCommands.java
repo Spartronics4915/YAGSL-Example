@@ -36,24 +36,32 @@ public final class DriveCommands {
 
         public void initialize() {
             System.out.println("Initialized!");
+            
             Rotation2d currHeading = m_drive.getHeading();
+            
             targetAngle = currHeading.getRadians() + driveRotation.getRadians();
-            targetState = new TrapezoidProfile.State(targetAngle,
+            
+            targetState = new TrapezoidProfile.State(
+                    targetAngle,
                     0);
+
             System.out.println(currHeading + " " + targetAngle);
             completed = false;
         }
 
         public void execute() {
-            final double dT = 1/50.;
-            TrapezoidProfile.State currState = new TrapezoidProfile.State(m_drive.getHeading().getRadians(),
-            m_drive.getRobotVelocity().omegaRadiansPerSecond);
-             nextState = motionProfile.calculate(dT, currState, targetState);
+            final double dT = 1 / 50.;
+            TrapezoidProfile.State currState = new TrapezoidProfile.State(
+                    m_drive.getHeading().getRadians(),
+                    m_drive.getRobotVelocity().omegaRadiansPerSecond);
 
-            m_drive.drive(new Translation2d(0,0), nextState.velocity, false);
+            nextState = motionProfile.calculate(dT, currState, targetState);
+
+            m_drive.drive(new Translation2d(0, 0), nextState.velocity, false);
+
             System.out.println("targetstate: " + targetState.position + " currstate: " + currState.position);
-            if (Math.abs(targetState.position - currState.position) < rotationThreshold) {
 
+            if (Math.abs(targetState.position - currState.position) < rotationThreshold) {
                 System.out.println("Completed!");
                 completed = true;
             }
@@ -63,8 +71,6 @@ public final class DriveCommands {
 
             return completed;
         }
-
-
 
     }
 }

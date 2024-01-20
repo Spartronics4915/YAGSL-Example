@@ -113,8 +113,15 @@ public class RobotContainer
   private void configureBindings()
   {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    // new JoystickButton(driverXbox, XboxController.Button.kA.value).onTrue(new AutoAimCommand(drivebase, mVision));
-    new JoystickButton(driverXbox, XboxController.Button.kB.value).onTrue(new DriveCommands.RotateFixedAngleCommand(drivebase, Rotation2d.fromDegrees(30)));
+    new JoystickButton(driverXbox, XboxController.Button.kA.value).onTrue(new AutoAimCommand(drivebase, mVision));
+    // new JoystickButton(driverXbox, XboxController.Button.kB.value).onTrue(new DriveCommands.RotateFixedAngleCommand(drivebase, Rotation2d.fromDegrees(30)));
+    Command driveFieldOrientedDirectAngle = drivebase.driveCommand(
+        () -> MathUtil.applyDeadband(driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
+        () -> MathUtil.applyDeadband(driverXbox.getLeftX(), OperatorConstants.LEFT_X_DEADBAND),
+        () -> driverXbox.getRightX(),
+        () -> driverXbox.getRightY()
+      );
+      drivebase.setDefaultCommand(driveFieldOrientedDirectAngle);
 
     // new JoystickButton(driverXbox, 1).onTrue((new InstantCommand(drivebase::zeroGyro)));
     // new JoystickButton(driverXbox, 3).onTrue(new InstantCommand(drivebase::addFakeVisionReading));
