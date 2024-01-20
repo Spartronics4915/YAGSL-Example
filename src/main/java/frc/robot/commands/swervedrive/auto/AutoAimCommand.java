@@ -33,7 +33,8 @@ public class AutoAimCommand extends Command {
     }
     @Override
     public boolean isFinished() {
-        return (Math.abs(getTx()) < 0.05);
+        // return (Math.abs(getTx()) < 0.05);
+        return false;
     }
 
     

@@ -93,16 +93,16 @@ public class RobotContainer
     //                                                 () -> MathUtil.applyDeadband(driverXbox.getLeftX(),
     //                                                                              OperatorConstants.LEFT_X_DEADBAND),
     //                                                 () -> driverXbox.getRawAxis(2), () -> true);
-    // TeleopDrive closedFieldRel = new TeleopDrive(
-    //     drivebase,
-    //     () -> MathUtil.applyDeadband(driverXbox.getRawAxis(1), OperatorConstants.LEFT_Y_DEADBAND),
-    //     () -> MathUtil.applyDeadband(driverXbox.getRawAxis(0), OperatorConstants.LEFT_X_DEADBAND),
-    //     () -> -driverXbox.getRawAxis(2), () -> true
-    //     );
+    TeleopDrive closedFieldRel = new TeleopDrive(
+        drivebase,
+        () -> -MathUtil.applyDeadband(driverXbox.getRawAxis(1), OperatorConstants.LEFT_Y_DEADBAND),
+        () -> -MathUtil.applyDeadband(driverXbox.getRawAxis(0), OperatorConstants.LEFT_X_DEADBAND),
+        () -> -driverXbox.getRawAxis(4), () -> true
+      );
 
 
-    // // drivebase.setDefaultCommand(!RobotBase.isSimulation() ? closedAbsoluteDrive : closedFieldAbsoluteDrive);
-    // drivebase.setDefaultCommand(closedFieldRel);
+    // drivebase.setDefaultCommand(!RobotBase.isSimulation() ? closedAbsoluteDrive : closedFieldAbsoluteDrive);
+    drivebase.setDefaultCommand(closedFieldRel);
   }
 
   /**
@@ -115,17 +115,17 @@ public class RobotContainer
   private void configureBindings()
   {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    new JoystickButton(driverXbox, XboxController.Button.kA.value).onTrue(new AutoAimCommand(drivebase, mVision));
+    new JoystickButton(driverXbox, XboxController.Button.kA.value).whileTrue(new AutoAimCommand(drivebase, mVision));
     // new JoystickButton(driverXbox, XboxController.Button.kB.value).onTrue(new DriveCommands.RotateFixedAngleCommand(drivebase, Rotation2d.fromDegrees(30)));
     Command driveFieldOrientedDirectAngle = drivebase.driveCommand(
-        () -> -MathUtil.applyDeadband(driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
-        () -> -MathUtil.applyDeadband(driverXbox.getLeftX(), OperatorConstants.LEFT_X_DEADBAND),
+        () -> driverXbox.getLeftY(), //MathUtil.applyDeadband(, OperatorConstants.LEFT_Y_DEADBAND),
+        () -> driverXbox.getLeftX(), //MathUtil.applyDeadband(, OperatorConstants.LEFT_X_DEADBAND),
         () -> driverXbox.getRightX(),
         () -> driverXbox.getRightY()
       );
       drivebase.setDefaultCommand(driveFieldOrientedDirectAngle);
 
-    // new JoystickButton(driverXbox, 1).onTrue((new InstantCommand(drivebase::zeroGyro)));
+    new JoystickButton(driverXbox, XboxController.Button.kX.value).onTrue((new InstantCommand(drivebase::zeroGyro)));
     // new JoystickButton(driverXbox, 3).onTrue(new InstantCommand(drivebase::addFakeVisionReading));
 //    new JoystickButton(driverXbox, 3).whileTrue(new RepeatCommand(new InstantCommand(drivebase::lock, drivebase)));
   }
