@@ -57,7 +57,7 @@ public class RobotContainer
    */
   public RobotContainer()
   {
-    traj = Choreo.getTrajectory("finn");
+    traj = Choreo.getTrajectory("finn pt 3");
 
     m_field.getObject("traj").setPoses(
       traj.getInitialPose(), traj.getFinalPose()
@@ -155,7 +155,11 @@ public class RobotContainer
             // output: m/s).
             thetaController, // PID constants to correct for rotation
             // error
-            (ChassisSpeeds speeds) -> drivebase.drive(speeds),
+            (ChassisSpeeds speeds) -> {
+              speeds.vxMetersPerSecond *= .2;
+              speeds.vyMetersPerSecond *= .2;
+              drivebase.drive(speeds);
+            },
             () -> false, // Whether or not to mirror the path based on alliance (this assumes the path is created for the blue alliance)
             drivebase // The subsystem(s) to require, typically your drive subsystem only
     );
