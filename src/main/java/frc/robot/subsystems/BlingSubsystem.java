@@ -106,20 +106,31 @@ public class BlingSubsystem extends SubsystemBase {
   }
 
   /**
-   * Sets the current color, if setSecondary is true then sets secondary color.
+   * Sets the current color of the bling
    * 
-   * @param newColor The new bling color
+   * @param newColor The new primary bling color
    */
   public void setColor(Color newColor) {
-    if (mSetSecondary)
-      this.mSecondary = newColor;
-    else
-      this.mPrimary = newColor;
-    mSetSecondary = false;
+    this.mPrimary = newColor;
+  }
+
+  /**
+   * Sets the secondary color of the bling
+   * 
+   * @param newColor The new secondary bling color
+   */
+  public void setSecondaryColor(Color newSecondary) {
+    this.mSecondary = newSecondary;
   }
 
   public Command setColorCommand(Color newColor) {
-    return runOnce(() -> setColor(newColor));
+    return runOnce(() -> {
+      if (mSetSecondary)
+        setSecondaryColor(newColor);
+      else
+        setColor(newColor);
+      mSetSecondary = false;
+    });
   }
 
   public Command setSecondaryColorCommand() {
