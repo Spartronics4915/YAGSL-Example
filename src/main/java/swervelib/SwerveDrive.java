@@ -925,6 +925,10 @@ public class SwerveDrive
       throw e;
     }
     odometryLock.unlock();
+    Pose2d newPose = getPose();
+    SmartDashboard.putNumber("Pose X: ", newPose.getX());
+    SmartDashboard.putNumber("Pose Y: ", newPose.getY());
+
   }
 
   /**
