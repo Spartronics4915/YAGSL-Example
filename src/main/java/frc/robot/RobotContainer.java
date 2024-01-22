@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.ShuffleBoard.ShuffleBoardUpdaters;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDrive;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteFieldDrive;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
@@ -168,8 +169,10 @@ public class RobotContainer
             Commands.runOnce(() -> drivebase.resetOdometry(traj.getInitialPose())),
             swerveCommand,
             drivebase.run(() -> drivebase.drive(new Translation2d(0,0), 0,false)));
-    
+  }
 
+  public  ShuffleBoardUpdaters getFieldUpdater(){
+    return new ShuffleBoard.FieldShuffleBoard(drivebase, m_field).init();
   }
 
   public void setDriveMode()
