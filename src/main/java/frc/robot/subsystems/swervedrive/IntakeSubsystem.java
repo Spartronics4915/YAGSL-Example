@@ -8,7 +8,25 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class IntakeSubsystem extends SubsystemBase {
   /** Creates a new IntakeSubsystem. */
+
+  public static enum IntakeState {
+    OFF,
+    INTAKE,
+    EXPEL
+  }
+
+  IntakeState mState;
   public IntakeSubsystem() {
+    setIntakeState(IntakeState.OFF);
+    
+  }
+
+  public void setIntakeState(IntakeState state) {
+    mState = state;
+  }
+  public IntakeState getIntakeState() {
+
+    return mState;
   }
 
   @Override

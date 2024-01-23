@@ -25,6 +25,7 @@ import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.WristSubsystem;
 import frc.robot.subsystems.SimVisualizationSubsystem;
+import frc.robot.subsystems.swervedrive.IntakeSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
 import frc.robot.subsystems.WristSubsystem;
@@ -48,8 +49,9 @@ public class RobotContainer {
             "swerve/neo"));
     private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
     private final WristSubsystem wristSubsystem = new WristSubsystem();
+    private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
     private final SimVisualizationSubsystem simVizSubsystem = new SimVisualizationSubsystem(elevatorSubsystem,
-            wristSubsystem);
+            wristSubsystem, intakeSubsystem);
 
     // CommandJoystick rotationController = new CommandJoystick(1);
     // Replace with CommandPS4Controller or CommandJoystick if needed
