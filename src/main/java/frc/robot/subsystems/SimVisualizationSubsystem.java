@@ -8,22 +8,19 @@ import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj.util.Color;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.swervedrive.IntakeSubsystem;
-import frc.robot.subsystems.swervedrive.IntakeSubsystem.IntakeState;
+import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.wrists.IntakeWristSubsystem;
 
 public class SimVisualizationSubsystem extends SubsystemBase {
 
     double wristAngleOffset = 30;
     ElevatorSubsystem mElevatorSubsystem;
-    WristSubsystem mWristSubsystem;
     IntakeSubsystem mIntakeSubsystem;
 
     public SimVisualizationSubsystem(ElevatorSubsystem elevatorSubsystem,
-            WristSubsystem wristSubsystem,
             IntakeSubsystem intakeSubsystem) {
 
         mElevatorSubsystem = elevatorSubsystem;
-        mWristSubsystem = wristSubsystem;
         mIntakeSubsystem = intakeSubsystem;
         buildWristElevatorViz();
     }
@@ -41,7 +38,7 @@ public class SimVisualizationSubsystem extends SubsystemBase {
     }
 
     private Color getIntakeColor() {
-        switch (mIntakeSubsystem.getIntakeState()) {
+        switch (mIntakeSubsystem.rollerSubsystem.getIntakeRollerState()) {
             case OFF:
                 return Color.kRed;
             case INTAKE:
@@ -58,7 +55,7 @@ public class SimVisualizationSubsystem extends SubsystemBase {
         final double angle_offset = 75;
         SmartDashboard.putData("WristElevator", wristElevatorMechanism);
         elevator.setLength(mElevatorSubsystem.getProfileSetPoint());
-        wrist.setAngle(mWristSubsystem.getProfileSetPoint() + angle_offset);
+        wrist.setAngle(mIntakeSubsystem.wristSubsystem.getProfileSetPoint() + angle_offset);
 
         Color8Bit intakeColor = new Color8Bit(getIntakeColor());
         wrist.setColor(intakeColor);

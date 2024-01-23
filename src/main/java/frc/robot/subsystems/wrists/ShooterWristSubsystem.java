@@ -1,11 +1,11 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.wrists;
 
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.Command;
 
-public class WristSubsystem extends SubsystemBase {
+public class ShooterWristSubsystem extends SubsystemBase {
 
     final double maxAngle = 115; // Degrees
     final double minAngle = 0;
@@ -17,7 +17,7 @@ public class WristSubsystem extends SubsystemBase {
     double currPredictedVelocity = 0;
     boolean m_isActive;
 
-    public WristSubsystem() {
+    public ShooterWristSubsystem() {
         m_isActive = false;
 
         initializePositions();
