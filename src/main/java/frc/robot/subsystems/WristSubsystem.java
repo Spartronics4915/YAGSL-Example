@@ -5,19 +5,19 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.Command;
 
-public class ElevatorSubsystem extends SubsystemBase {
+public class WristSubsystem extends SubsystemBase {
 
-    final TrapezoidProfile.Constraints motionConstraints = new TrapezoidProfile.Constraints(0.25, 0.125);
+    final double maxAngle = 115; // Degrees
+    final double minAngle = 0;
+    final TrapezoidProfile.Constraints motionConstraints = new TrapezoidProfile.Constraints(maxAngle/3, maxAngle/6);
     final TrapezoidProfile motionProfile = new TrapezoidProfile(motionConstraints);
-    final double maxHeight = 1.5; // Meters
-    final double minHeight = 0;
 
     double currUserSetPoint = 0;
     double currProfileSetPoint = 0;
     double currPredictedVelocity = 0;
     boolean m_isActive;
 
-    public ElevatorSubsystem() {
+    public WristSubsystem() {
         m_isActive = false;
 
         initializePositions();
@@ -38,11 +38,11 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public void setUserSetPoint(double userSetPoint) {
 
-        if (userSetPoint > maxHeight) {
+        if (userSetPoint > maxAngle) {
 
-            currUserSetPoint = maxHeight;
-        } else if (userSetPoint < minHeight) {
-            userSetPoint = minHeight;
+            currUserSetPoint = maxAngle;
+        } else if (userSetPoint < minAngle) {
+            userSetPoint = minAngle;
         } else {
             currUserSetPoint = userSetPoint;
         }
@@ -75,6 +75,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         final double dT = 1. / 20;
 
         if (m_isActive) {
+            //System.out.println(currProfileSetPoint + " " + currUserSetPoint);
             TrapezoidProfile.State currState = new TrapezoidProfile.State(currProfileSetPoint, currPredictedVelocity);
             TrapezoidProfile.State goalState = new TrapezoidProfile.State(currUserSetPoint, 0);
             TrapezoidProfile.State nextState = motionProfile.calculate(dT, currState, goalState);
@@ -86,13 +87,13 @@ public class ElevatorSubsystem extends SubsystemBase {
     // A test command to verify the system moves
 
     private void pingPongFunction() {
-        final double span = maxHeight - minHeight;
+        final double span = maxAngle - minAngle;
         if (m_isActive) {
-            if ((getProfileSetPoint() - minHeight) < 0.05 * span) {
+            if ((getProfileSetPoint() - minAngle) < 0.05 * span) {
 
-                setUserSetPoint(maxHeight);
-            } else if ((maxHeight - getProfileSetPoint()) < 0.05 * span) {
-                setUserSetPoint(minHeight);
+                setUserSetPoint(maxAngle);
+            } else if ((maxAngle - getProfileSetPoint()) < 0.05 * span) {
+                setUserSetPoint(minAngle);
             }
         }
     }

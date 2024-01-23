@@ -22,28 +22,39 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
+import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.WristSubsystem;
+import frc.robot.subsystems.SimVisualizationSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
-
+import frc.robot.subsystems.WristSubsystem;
 import com.choreo.lib.Choreo;
 import com.choreo.lib.ChoreoTrajectory;
 
 /**
- * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
- * little robot logic should actually be handled in the {@link Robot} periodic methods (other than the scheduler calls).
- * Instead, the structure of the robot (including subsystems, commands, and trigger mappings) should be declared here.
+ * This class is where the bulk of the robot should be declared. Since
+ * Command-based is a "declarative" paradigm, very
+ * little robot logic should actually be handled in the {@link Robot} periodic
+ * methods (other than the scheduler calls).
+ * Instead, the structure of the robot (including subsystems, commands, and
+ * trigger mappings) should be declared here.
  */
-public class RobotContainer
-{
+public class RobotContainer {
 
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
-                                                                         "swerve/neo"));
+      "swerve/neo"));
+  private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
+  private final WristSubsystem wristSubsystem = new WristSubsystem();
+  private final SimVisualizationSubsystem simVizSubsystem = new SimVisualizationSubsystem(elevatorSubsystem,
+      wristSubsystem);
+
   // CommandJoystick rotationController = new CommandJoystick(1);
   // Replace with CommandPS4Controller or CommandJoystick if needed
   CommandJoystick driverController = new CommandJoystick(1);
 
-  // CommandJoystick driverController   = new CommandJoystick(3);//(OperatorConstants.DRIVER_CONTROLLER_PORT);
+  // CommandJoystick driverController = new
+  // CommandJoystick(3);//(OperatorConstants.DRIVER_CONTROLLER_PORT);
   XboxController driverXbox = new XboxController(0);
 
   Field2d m_field = new Field2d();
@@ -52,31 +63,28 @@ public class RobotContainer
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
-  public RobotContainer()
-  {
+  public RobotContainer() {
     traj = Choreo.getTrajectory("TestNote3");
 
     m_field.getObject("traj").setPoses(
-      traj.getInitialPose(), traj.getFinalPose()
-    );
+        traj.getInitialPose(), traj.getFinalPose());
     m_field.getObject("trajPoses").setPoses(
-      traj.getPoses()
-    );
+        traj.getPoses());
 
     // Configure the trigger bindings
     configureBindings();
 
     AbsoluteDriveAdv closedAbsoluteDriveAdv = new AbsoluteDriveAdv(drivebase,
-                                                                   () -> MathUtil.applyDeadband(driverXbox.getLeftY(),
-                                                                                                OperatorConstants.LEFT_Y_DEADBAND),
-                                                                   () -> MathUtil.applyDeadband(driverXbox.getLeftX(),
-                                                                                                OperatorConstants.LEFT_X_DEADBAND),
-                                                                   () -> MathUtil.applyDeadband(driverXbox.getRightX(),
-                                                                                                OperatorConstants.RIGHT_X_DEADBAND),
-                                                                   driverXbox::getYButtonPressed,
-                                                                   driverXbox::getAButtonPressed,
-                                                                   driverXbox::getXButtonPressed,
-                                                                   driverXbox::getBButtonPressed);
+        () -> MathUtil.applyDeadband(driverXbox.getLeftY(),
+            OperatorConstants.LEFT_Y_DEADBAND),
+        () -> MathUtil.applyDeadband(driverXbox.getLeftX(),
+            OperatorConstants.LEFT_X_DEADBAND),
+        () -> MathUtil.applyDeadband(driverXbox.getRightX(),
+            OperatorConstants.RIGHT_X_DEADBAND),
+        driverXbox::getYButtonPressed,
+        driverXbox::getAButtonPressed,
+        driverXbox::getXButtonPressed,
+        driverXbox::getBButtonPressed);
 
     // Applies deadbands and inverts controls because joysticks
     // are back-right positive while robot
@@ -107,21 +115,27 @@ public class RobotContainer
     drivebase.setDefaultCommand(
         !RobotBase.isSimulation() ? driveFieldOrientedDirectAngle : driveFieldOrientedDirectAngleSim);
   }
-  
+
   /**
-   * Use this method to define your trigger->command mappings. Triggers can be created via the
-   * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary predicate, or via the
-   * named factories in {@link edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for
-   * {@link CommandXboxController Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller PS4}
-   * controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight joysticks}.
+   * Use this method to define your trigger->command mappings. Triggers can be
+   * created via the
+   * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with
+   * an arbitrary predicate, or via the
+   * named factories in
+   * {@link edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses
+   * for
+   * {@link CommandXboxController
+   * Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller PS4}
+   * controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick
+   * Flight joysticks}.
    */
-  private void configureBindings()
-  {
+  private void configureBindings() {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
 
     new JoystickButton(driverXbox, 1).onTrue((new InstantCommand(drivebase::zeroGyro)));
     new JoystickButton(driverXbox, 3).onTrue(new InstantCommand(drivebase::addFakeVisionReading));
-//    new JoystickButton(driverXbox, 3).whileTrue(new RepeatCommand(new InstantCommand(drivebase::lock, drivebase)));
+    // new JoystickButton(driverXbox, 3).whileTrue(new RepeatCommand(new
+    // InstantCommand(drivebase::lock, drivebase)));
   }
 
   /**
@@ -129,48 +143,48 @@ public class RobotContainer
    *
    * @return the command to run in autonomous
    */
-  public Command getAutonomousCommand()
-  {
+  public Command getAutonomousCommand() {
     var thetaController = new PIDController(0, 0, 0);
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
     drivebase.resetOdometry(traj.getInitialPose());
-    
+
     Command swerveCommand = Choreo.choreoSwerveCommand(
-            traj, // Choreo trajectory from above
-            drivebase::getPose, // A function that returns the current field-relative pose of the robot: your
-            // wheel or vision odometry
-            new PIDController(1, 0.0, 0.0), // PIDController for field-relative X
-            // translation (input: X error in meters,
-            // output: m/s).
-            new PIDController(1, 0.0, 0.0), // PIDController for field-relative Y
-            // translation (input: Y error in meters,
-            // output: m/s).
-            thetaController, // PID constants to correct for rotation
-            // error
-            (ChassisSpeeds speeds) -> {
-             
-              drivebase.drive(speeds);
-            },
-            () -> false, // Whether or not to mirror the path based on alliance (this assumes the path is created for the blue alliance)
-            drivebase // The subsystem(s) to require, typically your drive subsystem only
+        traj, // Choreo trajectory from above
+        drivebase::getPose, // A function that returns the current field-relative pose of the robot: your
+        // wheel or vision odometry
+        new PIDController(1, 0.0, 0.0), // PIDController for field-relative X
+        // translation (input: X error in meters,
+        // output: m/s).
+        new PIDController(1, 0.0, 0.0), // PIDController for field-relative Y
+        // translation (input: Y error in meters,
+        // output: m/s).
+        thetaController, // PID constants to correct for rotation
+        // error
+        (ChassisSpeeds speeds) -> {
+
+          drivebase.drive(speeds);
+        },
+        () -> false, // Whether or not to mirror the path based on alliance (this assumes the path is
+                     // created for the blue alliance)
+        drivebase // The subsystem(s) to require, typically your drive subsystem only
     );
 
-    return Commands.sequence(
-            Commands.runOnce(() -> drivebase.resetOdometry(traj.getInitialPose())),
-            swerveCommand,
-            drivebase.run(() -> drivebase.drive(new Translation2d(0,0), 0,false)));
-    
+    // return Commands.sequence(
+    // Commands.runOnce(() -> drivebase.resetOdometry(traj.getInitialPose())),
+    // swerveCommand,
+    // drivebase.run(() -> drivebase.drive(new Translation2d(0,0), 0,false)));
 
+    return Commands.sequence(Commands.runOnce(() -> elevatorSubsystem.activate()),
+        Commands.runOnce(() -> wristSubsystem.activate()),
+        Commands.parallel(elevatorSubsystem.pingPongCommand(), wristSubsystem.pingPongCommand()));
   }
 
-  public void setDriveMode()
-  {
-    //drivebase.setDefaultCommand();
+  public void setDriveMode() {
+    // drivebase.setDefaultCommand();
   }
 
-  public void setMotorBrake(boolean brake)
-  {
+  public void setMotorBrake(boolean brake) {
     drivebase.setMotorBrake(brake);
   }
 }
