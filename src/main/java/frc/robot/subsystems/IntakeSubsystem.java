@@ -42,6 +42,11 @@ public class IntakeSubsystem extends SubsystemBase {
     mWristState = state;
   }
 
+  // Here, activate means that the subsystems and motor controllers are functioning.
+  public void activateSystem() {
+    wristSubsystem.activate();
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run

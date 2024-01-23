@@ -8,8 +8,6 @@ import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj.util.Color;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.subsystems.wrists.IntakeWristSubsystem;
 
 public class SimVisualizationSubsystem extends SubsystemBase {
 
@@ -31,7 +29,7 @@ public class SimVisualizationSubsystem extends SubsystemBase {
 
     public void buildWristElevatorViz() {
         wristElevatorMechanism = new Mechanism2d(3, 3);
-        MechanismRoot2d elevatorBase = wristElevatorMechanism.getRoot("elevator_base", 1.5, 0);
+        MechanismRoot2d elevatorBase = wristElevatorMechanism.getRoot("elevator_base", 1.5, 0.2);
         elevator = elevatorBase.append(new MechanismLigament2d("Elevator", 1, 90, 6, new Color8Bit(Color.kBlue)));
         wrist = elevator.append(new MechanismLigament2d("wrist", 0.3, 90, 6, new Color8Bit(Color.kRed)));
 

@@ -1,19 +1,19 @@
 package frc.robot.commands.swervedrive.auto;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 
 import com.choreo.lib.Choreo;
-import com.choreo.lib.ChoreoTrajectory;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.rollers.IntakeRollerSubsystem.IntakeState;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
 public class ChoreoPickUpNoteCommand {
 
-    public Command createChoreoPickUpNoteCommand(SwerveSubsystem drive, String trajName, Pose2d noteLocation,
+    public static Command createChoreoPickUpNoteCommand(SwerveSubsystem drive, String trajName, Translation2d noteLocation,
             IntakeSubsystem intake) {
         var traj = Choreo.getTrajectory(trajName);
         var thetaController = new PIDController(0, 0, 0);
@@ -39,21 +39,28 @@ public class ChoreoPickUpNoteCommand {
                              // created for the blue alliance)
                 drive // The subsystem(s) to require, typically your drive subsystem only
         );
+        Command triggerCommand = new TriggerIntakeDeployCommand(drive, intake, noteLocation, 1, true);
 
-        return null;
+        return Commands.parallel(swerveCommand, triggerCommand);
 
     }
 
-    public class TriggerIntakeCommand extends Command {
+    public static class TriggerIntakeDeployCommand extends Command {
         SwerveSubsystem mDrive;
         Translation2d mTriggerLocation;
         double mTriggerDistance;
         IntakeSubsystem mIntake;
+        boolean mIsFinished;
+        boolean mActivateIntake;
 
-        public TriggerIntakeCommand(SwerveSubsystem drive, IntakeSubsystem intake, Translation2d triggerLocation, double triggerDistance) {
+        public TriggerIntakeDeployCommand(SwerveSubsystem drive, IntakeSubsystem intake, Translation2d triggerLocation, double triggerDistance,
+        boolean activateIntake) {
             mDrive = drive;
             mTriggerLocation = triggerLocation;
             mTriggerDistance = triggerDistance;
+            mIsFinished = false;
+            mIntake = intake;
+            mActivateIntake = activateIntake;
         }
 
         @Override
@@ -62,9 +69,18 @@ public class ChoreoPickUpNoteCommand {
             double distToTrigger = mTriggerLocation.getDistance(currLoc);
             if (distToTrigger < mTriggerDistance) {
 
-                
+                mIntake.deployShooterGroundPickup();
+                mIsFinished = true;
+                if(mActivateIntake) {
+                    mIntake.rollerSubsystem.setIntakeRollerState(IntakeState.INTAKE);
+                }
             }
 
+        }
+
+        @Override
+        public boolean isFinished() {
+            return mIsFinished;
         }
     }
 

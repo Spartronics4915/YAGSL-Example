@@ -6,7 +6,6 @@ package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -21,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.swervedrive.auto.ChoreoPickUpNoteCommand;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.SimVisualizationSubsystem;
@@ -46,7 +46,7 @@ public class RobotContainer {
         private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
                         "swerve/neo"));
         private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
-        private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+        public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
         private final SimVisualizationSubsystem simVizSubsystem = new SimVisualizationSubsystem(elevatorSubsystem,
                         intakeSubsystem);
 
@@ -118,6 +118,14 @@ public class RobotContainer {
                                                 : driveFieldOrientedDirectAngleSim);
         }
 
+        /*
+         * Activates systems that have flags controlling whether the system operates
+         */
+
+        public void activateSystems() {
+                intakeSubsystem.wristSubsystem.activate();
+        }
+
         /**
          * Use this method to define your trigger->command mappings. Triggers can be
          * created via the
@@ -146,6 +154,29 @@ public class RobotContainer {
          * @return the command to run in autonomous
          */
         public Command getAutonomousCommand() {
+                var initTraj = Choreo.getTrajectory("TestNote3");
+
+                Command autoCommand = ChoreoPickUpNoteCommand.createChoreoPickUpNoteCommand(drivebase, "TestNote3",
+                                new Translation2d(2.877, 7.025),
+                                intakeSubsystem);
+                Command initTrajCommand = Commands.runOnce(() -> drivebase.resetOdometry(initTraj.getInitialPose()));
+
+                return Commands.sequence(initTrajCommand, autoCommand);
+        }
+
+        public ShuffleBoardUpdaters getFieldUpdater() {
+                return new ShuffleBoard.FieldShuffleBoard(drivebase, m_field).init();
+        }
+
+        public void setDriveMode() {
+                // drivebase.setDefaultCommand();
+        }
+
+        public void setMotorBrake(boolean brake) {
+                drivebase.setMotorBrake(brake);
+        }
+
+        public Command getPingPongTestAutonomousCommand() {
                 var thetaController = new PIDController(0, 0, 0);
                 thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
@@ -191,15 +222,4 @@ public class RobotContainer {
                 return Commands.parallel(pingPongCommand, autoTrajCommand);
         }
 
-        public ShuffleBoardUpdaters getFieldUpdater() {
-                return new ShuffleBoard.FieldShuffleBoard(drivebase, m_field).init();
-        }
-
-        public void setDriveMode() {
-                // drivebase.setDefaultCommand();
-        }
-
-        public void setMotorBrake(boolean brake) {
-                drivebase.setMotorBrake(brake);
-        }
 }
