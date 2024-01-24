@@ -6,8 +6,10 @@ package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.XboxController;
@@ -20,6 +22,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.auto.drivecommands.DriveStraightCommands;
+import frc.robot.commands.auto.drivecommands.DriveStraightCommands.DriveStraightFixedDistance;
 import frc.robot.commands.swervedrive.auto.ChoreoPickUpNoteCommand;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
 import frc.robot.subsystems.ElevatorSubsystem;
@@ -166,8 +170,10 @@ public class RobotContainer {
                                 intakeSubsystem);
                 Command initTrajCommand = Commands.runOnce(() -> drivebase.resetOdometry(initTraj.getInitialPose()));
 
-                return getPingPongTestAutonomousCommand();
+                // return getPingPongTestAutonomousCommand();
                 // return Commands.sequence(initTrajCommand, autoCommand);
+                return new DriveStraightCommands.DriveStraightFixedDistance(drivebase, Rotation2d.fromDegrees(0), 
+                3, new TrapezoidProfile.Constraints(0.5,0.5/2));
         }
 
         public ShuffleBoardUpdaters getFieldUpdater() {
