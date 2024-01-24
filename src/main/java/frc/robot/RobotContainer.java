@@ -25,6 +25,8 @@ import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.SimVisualizationSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.ShooterAssistSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
 import frc.robot.ShuffleBoard.ShuffleBoardUpdaters;
@@ -41,14 +43,16 @@ import com.choreo.lib.ChoreoTrajectory;
  * trigger mappings) should be declared here.
  */
 public class RobotContainer {
-
         // The robot's subsystems and commands are defined here...
         private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
                         "swerve/neo"));
         private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
         public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+        public final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
+        public final ShooterAssistSubsystem shooterAssistSubsystem = new ShooterAssistSubsystem(shooterSubsystem,
+                        drivebase);
         private final SimVisualizationSubsystem simVizSubsystem = new SimVisualizationSubsystem(elevatorSubsystem,
-                        intakeSubsystem);
+                        intakeSubsystem, shooterSubsystem);
 
         // CommandJoystick rotationController = new CommandJoystick(1);
         // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -124,6 +128,7 @@ public class RobotContainer {
 
         public void activateSystems() {
                 intakeSubsystem.wristSubsystem.activate();
+                shooterSubsystem.shooterWrist.activate();
         }
 
         /**
@@ -161,7 +166,8 @@ public class RobotContainer {
                                 intakeSubsystem);
                 Command initTrajCommand = Commands.runOnce(() -> drivebase.resetOdometry(initTraj.getInitialPose()));
 
-                return Commands.sequence(initTrajCommand, autoCommand);
+                return getPingPongTestAutonomousCommand();
+                // return Commands.sequence(initTrajCommand, autoCommand);
         }
 
         public ShuffleBoardUpdaters getFieldUpdater() {
@@ -174,6 +180,11 @@ public class RobotContainer {
 
         public void setMotorBrake(boolean brake) {
                 drivebase.setMotorBrake(brake);
+        }
+
+        public void enableTeleopFeatures() {
+
+                shooterAssistSubsystem.enableAutoAimElevation();
         }
 
         public Command getPingPongTestAutonomousCommand() {
@@ -213,7 +224,8 @@ public class RobotContainer {
                 Command pingPongCommand = Commands.sequence(Commands.runOnce(() -> elevatorSubsystem.activate()),
                                 Commands.runOnce(() -> intakeSubsystem.wristSubsystem.activate()),
                                 Commands.parallel(elevatorSubsystem.pingPongCommand(),
-                                                intakeSubsystem.wristSubsystem.pingPongCommand()));
+                                                intakeSubsystem.wristSubsystem.pingPongCommand(),
+                                                shooterSubsystem.shooterWrist.pingPongCommand()));
                 Command autoTrajCommand = Commands.sequence(
                                 Commands.runOnce(() -> drivebase.resetOdometry(traj.getInitialPose())),
                                 swerveCommand,

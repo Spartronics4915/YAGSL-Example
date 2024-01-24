@@ -72,7 +72,7 @@ public class IntakeWristSubsystem extends SubsystemBase {
     
     public void periodic() {
 
-        final double dT = 1. / 20;
+        final double dT = 1. / 50;
 
         if (m_isActive) {
             //System.out.println(currProfileSetPoint + " " + currUserSetPoint);

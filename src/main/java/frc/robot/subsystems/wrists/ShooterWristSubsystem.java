@@ -7,9 +7,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 public class ShooterWristSubsystem extends SubsystemBase {
 
-    final double maxAngle = 115; // Degrees
+    final double maxAngle = 85; // Degrees
     final double minAngle = 0;
-    final TrapezoidProfile.Constraints motionConstraints = new TrapezoidProfile.Constraints(maxAngle/3, maxAngle/6);
+    final TrapezoidProfile.Constraints motionConstraints = new TrapezoidProfile.Constraints(maxAngle / 3, maxAngle / 6);
     final TrapezoidProfile motionProfile = new TrapezoidProfile(motionConstraints);
 
     double currUserSetPoint = 0;
@@ -63,19 +63,19 @@ public class ShooterWristSubsystem extends SubsystemBase {
     }
 
     public void activate() {
+        System.out.println("Activated");
         m_isActive = true;
     }
 
     public void deactivate() {
         m_isActive = false;
     }
-    
+
     public void periodic() {
 
-        final double dT = 1. / 20;
+        final double dT = 1. / 50;
 
         if (m_isActive) {
-            //System.out.println(currProfileSetPoint + " " + currUserSetPoint);
             TrapezoidProfile.State currState = new TrapezoidProfile.State(currProfileSetPoint, currPredictedVelocity);
             TrapezoidProfile.State goalState = new TrapezoidProfile.State(currUserSetPoint, 0);
             TrapezoidProfile.State nextState = motionProfile.calculate(dT, currState, goalState);
@@ -87,6 +87,8 @@ public class ShooterWristSubsystem extends SubsystemBase {
     // A test command to verify the system moves
 
     private void pingPongFunction() {
+        // System.out.println(currProfileSetPoint + " " + currUserSetPoint);
+
         final double span = maxAngle - minAngle;
         if (m_isActive) {
             if ((getProfileSetPoint() - minAngle) < 0.05 * span) {
