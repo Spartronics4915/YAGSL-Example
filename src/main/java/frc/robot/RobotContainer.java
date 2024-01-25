@@ -29,6 +29,7 @@ import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.SimVisualizationSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.LEDDriverCommunicationSubsystem;
 import frc.robot.subsystems.ShooterAssistSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
@@ -53,10 +54,11 @@ public class RobotContainer {
         private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
         public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
         public final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
+        public final LEDDriverCommunicationSubsystem driverLEDSubsystem = new LEDDriverCommunicationSubsystem();
         public final ShooterAssistSubsystem shooterAssistSubsystem = new ShooterAssistSubsystem(shooterSubsystem,
-                        drivebase);
+                        drivebase, driverLEDSubsystem);
         private final SimVisualizationSubsystem simVizSubsystem = new SimVisualizationSubsystem(elevatorSubsystem,
-                        intakeSubsystem, shooterSubsystem);
+                        intakeSubsystem, shooterSubsystem, driverLEDSubsystem);
 
         // CommandJoystick rotationController = new CommandJoystick(1);
         // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -172,8 +174,8 @@ public class RobotContainer {
 
                 // return getPingPongTestAutonomousCommand();
                 // return Commands.sequence(initTrajCommand, autoCommand);
-                return new DriveStraightCommands.DriveStraightFixedDistance(drivebase, Rotation2d.fromDegrees(0), 
-                3, new TrapezoidProfile.Constraints(0.5,0.5/2));
+                return new DriveStraightCommands.DriveStraightFixedDistance(drivebase, Rotation2d.fromDegrees(0),
+                                3, new TrapezoidProfile.Constraints(0.5, 0.5 / 2));
         }
 
         public ShuffleBoardUpdaters getFieldUpdater() {
