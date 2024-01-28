@@ -6,7 +6,9 @@ package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -25,9 +27,11 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.auto.drivecommands.DriveStraightCommands;
 import frc.robot.commands.auto.drivecommands.DriveStraightCommands.DriveStraightFixedDistance;
 import frc.robot.commands.swervedrive.auto.ChoreoPickUpNoteCommand;
+import frc.robot.commands.swervedrive.auto.PrintDistFromTrajBegin;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.SimVisualizationSubsystem;
+import frc.robot.subsystems.TimerSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LEDDriverCommunicationSubsystem;
 import frc.robot.subsystems.ShooterAssistSubsystem;
@@ -59,6 +63,7 @@ public class RobotContainer {
                         drivebase, driverLEDSubsystem);
         private final SimVisualizationSubsystem simVizSubsystem = new SimVisualizationSubsystem(elevatorSubsystem,
                         intakeSubsystem, shooterSubsystem, driverLEDSubsystem);
+        public final TimerSubsystem timerSubsystem = new TimerSubsystem();
 
         // CommandJoystick rotationController = new CommandJoystick(1);
         // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -69,18 +74,11 @@ public class RobotContainer {
         XboxController driverXbox = new XboxController(0);
 
         Field2d m_field = new Field2d();
-        ChoreoTrajectory traj;
 
         /**
          * The container for the robot. Contains subsystems, OI devices, and commands.
          */
         public RobotContainer() {
-                traj = Choreo.getTrajectory("TestNote3");
-
-                m_field.getObject("traj").setPoses(
-                                traj.getInitialPose(), traj.getFinalPose());
-                m_field.getObject("trajPoses").setPoses(
-                                traj.getPoses());
 
                 // Configure the trigger bindings
                 configureBindings();
@@ -165,17 +163,47 @@ public class RobotContainer {
          * @return the command to run in autonomous
          */
         public Command getAutonomousCommand() {
-                var initTraj = Choreo.getTrajectory("TestNote3");
+                var traj1 = Choreo.getTrajectory("Note1.1");
+                var traj2 = Choreo.getTrajectory("Note2.1");
+                var traj3 = Choreo.getTrajectory("Note3.1");
+                var traj4 = Choreo.getTrajectory("Note4.1");
 
-                Command autoCommand = ChoreoPickUpNoteCommand.createChoreoPickUpNoteCommand(drivebase, "TestNote3",
+                final double MAX_NOISE = 0.3;
+                double xNoise = Math.random() * MAX_NOISE;
+                double yNoise = Math.random() * MAX_NOISE;
+
+                Transform2d noise = new Transform2d(xNoise, yNoise, new Rotation2d());
+                Pose2d initPose = traj1.getInitialPose().plus(noise);
+
+                Command note1Command = ChoreoPickUpNoteCommand.createChoreoPickUpNoteCommand(drivebase, "Note1.1",
                                 new Translation2d(2.877, 7.025),
                                 intakeSubsystem);
-                Command initTrajCommand = Commands.runOnce(() -> drivebase.resetOdometry(initTraj.getInitialPose()));
+                Command initTrajCommand = Commands.runOnce(() -> drivebase.resetOdometry(initPose));
+                Command printDist1 = PrintDistFromTrajBegin.buildPrintDistFromTrajStart(drivebase, traj1);
+                Command printDist2 = PrintDistFromTrajBegin.buildPrintDistFromTrajStart(drivebase, traj2);
+                Command printDist3 = PrintDistFromTrajBegin.buildPrintDistFromTrajStart(drivebase, traj3);
+                Command note2Command = ChoreoPickUpNoteCommand.createChoreoPickUpNoteCommand(drivebase, "Note2.1",
+                                new Translation2d(3.176, 6.409),
+                                intakeSubsystem);
+
+                Command note3Command = ChoreoPickUpNoteCommand.createChoreoPickUpNoteCommand(drivebase, "Note3.1",
+                                new Translation2d(3.176, 6.409),
+                                intakeSubsystem);
+                Command note4Command = ChoreoPickUpNoteCommand.createChoreoPickUpNoteCommand(drivebase, "Note4.1",
+                                new Translation2d(3.176, 6.409),
+                                intakeSubsystem);
+                Command holdStillCommand = Commands.run(() -> {
+                        drivebase.drive(new Translation2d(), 0, false);
+                });
 
                 // return getPingPongTestAutonomousCommand();
-                // return Commands.sequence(initTrajCommand, autoCommand);
-                return new DriveStraightCommands.DriveStraightFixedDistance(drivebase, Rotation2d.fromDegrees(0),
-                                3, new TrapezoidProfile.Constraints(0.5, 0.5 / 2));
+                return Commands.sequence(initTrajCommand, timerSubsystem.startTimerCommand(), printDist1, note1Command,
+                                printDist2, note2Command,
+                                printDist3, note3Command, note4Command, timerSubsystem.printElapsedTimeCommand(),
+                                holdStillCommand);
+                // return new DriveStraightCommands.DriveStraightFixedDistance(drivebase,
+                // Rotation2d.fromDegrees(180),
+                // 3, new TrapezoidProfile.Constraints(0.5, 0.5 / 2));
         }
 
         public ShuffleBoardUpdaters getFieldUpdater() {
@@ -199,6 +227,7 @@ public class RobotContainer {
                 var thetaController = new PIDController(0, 0, 0);
                 thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
+                ChoreoTrajectory traj = Choreo.getTrajectory("Note1.1");
                 drivebase.resetOdometry(traj.getInitialPose());
 
                 Command swerveCommand = Choreo.choreoSwerveCommand(

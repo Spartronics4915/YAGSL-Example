@@ -16,17 +16,17 @@ public class ChoreoPickUpNoteCommand {
     public static Command createChoreoPickUpNoteCommand(SwerveSubsystem drive, String trajName, Translation2d noteLocation,
             IntakeSubsystem intake) {
         var traj = Choreo.getTrajectory(trajName);
-        var thetaController = new PIDController(0, 0, 0);
+        var thetaController = new PIDController(0.1, 0, 0);
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
         Command swerveCommand = Choreo.choreoSwerveCommand(
                 traj, // Choreo trajectory from above
                 drive::getPose, // A function that returns the current field-relative pose of the robot: your
                 // wheel or vision odometry
-                new PIDController(1, 0.0, 0.0), // PIDController for field-relative X
+                new PIDController(0.25, 0.0, 0.0), // PIDController for field-relative X
                 // translation (input: X error in meters,
                 // output: m/s).
-                new PIDController(1, 0.0, 0.0), // PIDController for field-relative Y
+                new PIDController(0.25, 0.0, 0.0), // PIDController for field-relative Y
                 // translation (input: Y error in meters,
                 // output: m/s).
                 thetaController, // PID constants to correct for rotation
@@ -41,7 +41,7 @@ public class ChoreoPickUpNoteCommand {
         );
         Command triggerCommand = new TriggerIntakeDeployCommand(drive, intake, noteLocation, 1, true);
 
-        return Commands.parallel(swerveCommand, triggerCommand);
+        return swerveCommand.deadlineWith(triggerCommand);
 
     }
 
