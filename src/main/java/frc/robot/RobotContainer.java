@@ -39,6 +39,7 @@ import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
 import frc.robot.ShuffleBoard.ShuffleBoardUpdaters;
+import frc.robot.commands.swervedrive.auto.ChoreoDriveCommand;
 
 import com.choreo.lib.Choreo;
 import com.choreo.lib.ChoreoTrajectory;
@@ -168,7 +169,7 @@ public class RobotContainer {
                 var traj3 = Choreo.getTrajectory("Note3.1");
                 var traj4 = Choreo.getTrajectory("Note4.1");
 
-                final double MAX_NOISE = 0.3;
+                final double MAX_NOISE = 0.0;
                 double xNoise = Math.random() * MAX_NOISE;
                 double yNoise = Math.random() * MAX_NOISE;
 
@@ -192,6 +193,7 @@ public class RobotContainer {
                 Command note4Command = ChoreoPickUpNoteCommand.createChoreoPickUpNoteCommand(drivebase, "Note4.1",
                                 new Translation2d(3.176, 6.409),
                                 intakeSubsystem);
+                Command driveShootNote4Command = ChoreoDriveCommand.createChoreoDriveCommand(drivebase, "Shoot4.1");
                 Command holdStillCommand = Commands.run(() -> {
                         drivebase.drive(new Translation2d(), 0, false);
                 });
@@ -199,7 +201,8 @@ public class RobotContainer {
                 // return getPingPongTestAutonomousCommand();
                 return Commands.sequence(initTrajCommand, timerSubsystem.startTimerCommand(), printDist1, note1Command,
                                 printDist2, note2Command,
-                                printDist3, note3Command, note4Command, timerSubsystem.printElapsedTimeCommand(),
+                                printDist3, note3Command, note4Command, driveShootNote4Command,
+                                timerSubsystem.printElapsedTimeCommand(),
                                 holdStillCommand);
                 // return new DriveStraightCommands.DriveStraightFixedDistance(drivebase,
                 // Rotation2d.fromDegrees(180),
